@@ -10,7 +10,7 @@ export const getData = async (endpoint: string) => {
                 'Content-Type': 'application/json',
             }
         });
-        return response;
+        return response.json();
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;
@@ -25,7 +25,7 @@ export const postData = async (endpoint: string) => {
                 'Content-Type': 'application/json',
             }
         });
-        return response;
+        return response.json();
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;

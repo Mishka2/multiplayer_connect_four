@@ -17,3 +17,7 @@ export type BoardCellInformation = BoardCellIndexInfo & {
     originalState: CellState,
     currentState: CellState
 }
+
+export const CookieNames = {
+    username: "username"
+}
