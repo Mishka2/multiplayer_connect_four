@@ -1,35 +1,41 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ConnectToGame from "../ConnectToGame/ConnectToGame";
 import LogIn from "../LogIn/LogIn";
 import LoggedIn from "../LogIn/LoggedIn";
 import CookieHelper from "../../utils/CookieHelper";
 import { CookieNames } from "../../utils/Constants";
+import { GameContext } from "../../utils/GameContext";
+import ConnectedToGame from "../ConnectToGame/ConnectedToGame";
 
 function InfoSection() {
-
-    const [username, setUsername] = useState<string | null>(null)
-    const [connectedToGame, setConnectedToGame] = useState(false)
+    const { username, setUsername, gameCode, setGameCode } = useContext(GameContext)
 
     useEffect(() => {
         checkForUsername()
     }, [])
 
+    useEffect(() => {
+        checkForGameCode()
+    }, [username])
+
     function checkForUsername() {
         const cookieUsername = CookieHelper.getCookie(CookieNames.username)
-        console.log(cookieUsername)
         if (cookieUsername) {
             setUsername(cookieUsername)
         }
     }
 
+    function checkForGameCode() {
+        const cookieGameCode = CookieHelper.getCookie(CookieNames.currentGameCode)
+        if (cookieGameCode) {
+            setGameCode(cookieGameCode)
+        }
+    }
+
     return (
         <>
-            {username ? <LoggedIn username={username} setUsername={setUsername} /> : <LogIn setUsername={setUsername} />}
-            {connectedToGame ?
-                <p>connected!</p>
-                :
-                <ConnectToGame />
-            }
+            {username ? <LoggedIn /> : <LogIn />}
+            {gameCode ? <ConnectedToGame /> : <ConnectToGame />}
         </>
     )
 }
