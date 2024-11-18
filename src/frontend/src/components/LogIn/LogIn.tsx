@@ -9,7 +9,7 @@ type LogInProps = {
 
 function LogIn({ }: LogInProps) {
     const [input, setInput] = useState("")
-    const { setUsername } = useContext(GameContext)
+    const { setUsername, setUserId } = useContext(GameContext)
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         setInput(event.target.value.toLowerCase())
@@ -18,9 +18,13 @@ function LogIn({ }: LogInProps) {
     async function login() {
         const response = await postData(`/login?username=${input}`)
         const username: string = response.username
+        const userId: string = response.userId
         if (username) {
+            console.log(username, userId)
             setUsername(username)
+            setUserId(userId)
             CookieHelper.setCookie(CookieNames.username, username)
+            CookieHelper.setCookie(CookieNames.userId, userId)
         }
 
     }

@@ -20,5 +20,12 @@ export type BoardCellInformation = BoardCellIndexInfo & {
 
 export const CookieNames = {
     username: "username",
+    userId: "userId",
     currentGameCode: "currentGameCode"
+}
+
+
+export type User = {
+    id: string
+    username: string
 }

@@ -8,20 +8,23 @@ import { GameContext } from "../../utils/GameContext";
 import ConnectedToGame from "../ConnectToGame/ConnectedToGame";
 
 function InfoSection() {
-    const { username, setUsername, gameCode, setGameCode } = useContext(GameContext)
+    const { username, setUsername, userId, setUserId, gameCode, setGameCode } = useContext(GameContext)
 
     useEffect(() => {
         checkForUsername()
-    }, [])
+    }, [username])
 
     useEffect(() => {
         checkForGameCode()
-    }, [username])
+    }, [gameCode])
 
     function checkForUsername() {
         const cookieUsername = CookieHelper.getCookie(CookieNames.username)
-        if (cookieUsername) {
+        const cookieUserId = CookieHelper.getCookie(CookieNames.userId)
+        console.log(cookieUsername)
+        if (cookieUsername && cookieUserId) {
             setUsername(cookieUsername)
+            setUserId(cookieUserId)
         }
     }
 

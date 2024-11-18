@@ -2,20 +2,28 @@ import { useContext, useState } from "react"
 import { postData } from "../../services/api"
 import { GameContext } from "../../utils/GameContext"
 import CookieHelper from "../../utils/CookieHelper"
-import { CookieNames } from "../../utils/Constants"
+import { CookieNames, User } from "../../utils/Constants"
 
 function ConnectToGame() {
     const [input, setInput] = useState("")
-    const { username, setGameCode } = useContext(GameContext)
+    const { username, userId, setGameCode, otherUser, setOtherUser } = useContext(GameContext)
 
     function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
         setInput(event.target.value.toUpperCase())
     }
 
     async function connect() {
-        const response = await postData(`/connectToGame?gameId=${input}&username=${username}`)
+        console.log(userId)
+        const response = await postData(`/connectToGame?game_name=${input}&user_id=${userId}`)
+
+        console.log("REEE", response)
         if (response.otherUser) {
             setGameCode(input)
+            let otherUser: User = {
+                id: response.otherUser.id,
+                username: response.otherUser.name
+            }
+            setOtherUser(otherUser)
         }
     }
 

@@ -5,7 +5,7 @@ import CookieHelper from "../../utils/CookieHelper"
 import { CookieNames } from "../../utils/Constants"
 
 function ConnectedToGame() {
-    const { gameCode, setGameCode } = useContext(GameContext)
+    const { gameCode, setGameCode, otherUser } = useContext(GameContext)
 
     async function exitGame() {
         CookieHelper.removeCookie(CookieNames.currentGameCode)
@@ -14,7 +14,8 @@ function ConnectedToGame() {
 
     return (
         <>
-            <p>connected to game: {gameCode}</p>
+            <p>Connected to game: {gameCode}</p>
+            <p>Connected to user: {otherUser?.username}</p>
             <button onClick={exitGame}>Exit game</button>
         </>
     )

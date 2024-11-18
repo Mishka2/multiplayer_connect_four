@@ -16,39 +16,68 @@ def generate_random_code():
     code = ''.join(random.choice(letters) for _ in range(4))
     return code
 
+async def initialize_new_game(code: str):
+    make_game_query = """
+    INSERT INTO game (name, game_state, active) VALUES ($1, 'trial', TRUE)
+    RETURNING id
+    """
+
+    try:
+        new_game_id = await Database._connection.fetchval(make_game_query, code)
+        return new_game_id
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed querying for game code") from e
+
+async def get_user_id_by_name(username: str):
+    get_user_id = """
+    SELECT id from "user" where "name" = $1;
+    """
+
+    try:
+        user_id = await Database._connection.fetchval(get_user_id, username)
+        return user_id
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed querying for game code") from e
+
+
+
 async def make_new_game(code: str, username: str):
-    make_game_query = "INSERT INTO game (name, game_state, active) VALUES ($1, 'trial', TRUE)"
-    get_game_id = "SELECT id FROM game WHERE name = $1"
-    get_user_id = "SELECT id FROM \"user\" WHERE name = $1"
     add_user_to_game = "INSERT INTO user_to_game (user_id, game_id) VALUES ($1, $2)"
 
     print("Okay trying to add stuff to DB for game: ", code, username)
     try:
-        await Database._connection.execute(make_game_query, code)
-        game_id = await Database._connection.fetchval(get_game_id, code)
-        user_id = await Database._connection.fetchval(get_user_id, username)
-        await Database._connection.execute(add_user_to_game, user_id, game_id)
+        new_game_id = await initialize_new_game(code)
+        print("codeee", code, new_game_id)
+        user_id = await get_user_id_by_name(username)
+        print("user_id", user_id, "game_id", new_game_id)
+        await Database._connection.execute(add_user_to_game, user_id, new_game_id)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed querying for game code") from e
 
 async def get_players_in_game(game_name: str):
-    get_players = "SELECT \"user\".* FROM \"user\" \
-    JOIN user_to_game ON \"user\".id = user_to_game.user_id \
-    WHERE user_to_game.game_id = (SELECT id FROM game WHERE name = $1)"
-
+    get_players = """
+    SELECT "user".* FROM "user" 
+    JOIN user_to_game ON "user".id = user_to_game.user_id 
+    WHERE user_to_game.game_id = (SELECT id FROM game WHERE name = $1)
+    """
     try:
         users_in_game = await Database._connection.fetch(get_players, game_name)
+        print(users_in_game)
         return users_in_game
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed get_players_in_game") from e
 
 async def add_player_to_game(game_name: str, user_id: str):
+    print("REEEEEE", game_name, user_id)
     get_game = "SELECT id FROM game WHERE name = $1"
     add_user_to_game = "INSERT INTO user_to_game (user_id, game_id) VALUES ($1, $2)"
     try:
         game_id = await Database._connection.fetchval(get_game, game_name)
+        print("GAME ID", game_id, user_id)
         await Database._connection.execute(add_user_to_game, user_id, game_id)
 
     except Exception as e:
@@ -56,25 +85,26 @@ async def add_player_to_game(game_name: str, user_id: str):
 
 
 @router.post("/connectToGame")
-async def connectToGame(gameId: str, username: str):
+async def connectToGame(game_name: str, user_id: str):
     if Database._connection is None:
         raise RuntimeError("Database connection has not been established!")
 
-    players_in_game = await get_players_in_game(gameId)
+    players_in_game = await get_players_in_game(game_name)
     if (players_in_game == []):
         return {"error": "Not a valid game code"}
     elif (len(players_in_game) == 2):
-        if (players_in_game[0]['name'] == username):
+        print(user_id)
+        print(players_in_game)
+        if (str(players_in_game[0]['id']) == user_id):
             return {"otherUser": players_in_game[1]}
         
-        if (players_in_game[1]['name'] == username):
+        if (str(players_in_game[1]['id']) == user_id):
             return {"otherUser": players_in_game[0]}
 
         return {"error": "Game full"}
     else:
-        player = players_in_game[0]
-        await add_player_to_game(gameId, player['id'])
-        return {"otherUser": player}
+        await add_player_to_game(game_name, user_id)
+        return {"otherUser":players_in_game[0]}
 
 
 
