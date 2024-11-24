@@ -16,7 +16,6 @@ async def makeNewUser(username: str):
     query = "INSERT INTO \"user\" (name) VALUES ($1) RETURNING id"
     try:
         userId = await Database._connection.fetchval(query, username)
-        console.log('userId', userId)
         if userId is None:
             raise HTTPException(status_code=400, detail="Unable to make user") 
 
@@ -33,16 +32,13 @@ async def loginWithUsername(username: str):
   
     query = "SELECT id FROM \"user\" WHERE name = $1"
     try:
-        print("trying to select from user", username)
         userId = await Database._connection.fetchval(query, username)
-        print("userlist")
         if userId is None:
             # Make new user
             newUserId = await makeNewUser(username)
             return {"userId": newUserId, "username": username}
 
         # Re-write old user
-        print(userId, username)
         return {"userId": userId, "username": username}
         
     except Exception as e:

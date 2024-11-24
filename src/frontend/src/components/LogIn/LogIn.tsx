@@ -20,7 +20,6 @@ function LogIn({ }: LogInProps) {
         const username: string = response.username
         const userId: string = response.userId
         if (username) {
-            console.log(username, userId)
             setUsername(username)
             setUserId(userId)
             CookieHelper.setCookie(CookieNames.username, username)

@@ -46,12 +46,9 @@ async def get_user_id_by_name(username: str):
 async def make_new_game(code: str, username: str):
     add_user_to_game = "INSERT INTO user_to_game (user_id, game_id) VALUES ($1, $2)"
 
-    print("Okay trying to add stuff to DB for game: ", code, username)
     try:
         new_game_id = await initialize_new_game(code)
-        print("codeee", code, new_game_id)
         user_id = await get_user_id_by_name(username)
-        print("user_id", user_id, "game_id", new_game_id)
         await Database._connection.execute(add_user_to_game, user_id, new_game_id)
 
     except Exception as e:
@@ -65,19 +62,16 @@ async def get_players_in_game(game_name: str):
     """
     try:
         users_in_game = await Database._connection.fetch(get_players, game_name)
-        print(users_in_game)
         return users_in_game
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed get_players_in_game") from e
 
 async def add_player_to_game(game_name: str, user_id: str):
-    print("REEEEEE", game_name, user_id)
     get_game = "SELECT id FROM game WHERE name = $1"
     add_user_to_game = "INSERT INTO user_to_game (user_id, game_id) VALUES ($1, $2)"
     try:
         game_id = await Database._connection.fetchval(get_game, game_name)
-        print("GAME ID", game_id, user_id)
         await Database._connection.execute(add_user_to_game, user_id, game_id)
 
     except Exception as e:
@@ -93,8 +87,6 @@ async def connectToGame(game_name: str, user_id: str):
     if (players_in_game == []):
         return {"error": "Not a valid game code"}
     elif (len(players_in_game) == 2):
-        print(user_id)
-        print(players_in_game)
         if (str(players_in_game[0]['id']) == user_id):
             return {"otherUser": players_in_game[1]}
         

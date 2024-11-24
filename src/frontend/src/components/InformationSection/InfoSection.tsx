@@ -21,7 +21,6 @@ function InfoSection() {
     function checkForUsername() {
         const cookieUsername = CookieHelper.getCookie(CookieNames.username)
         const cookieUserId = CookieHelper.getCookie(CookieNames.userId)
-        console.log(cookieUsername)
         if (cookieUsername && cookieUserId) {
             setUsername(cookieUsername)
             setUserId(cookieUserId)

@@ -12,7 +12,9 @@ type GameContextType = {
     otherUser: User | null,
     setOtherUser: (user: User | null) => void,
     otherUserId: User | null,
-    setOtherUserId: (user: User | null) => void
+    setOtherUserId: (user: User | null) => void,
+    websocketConnection: WebSocket | null,
+    setWebsocketConnection: (websocketConnection: WebSocket | null) => void
 }
 
 const defaultContext: GameContextType = {
@@ -25,7 +27,9 @@ const defaultContext: GameContextType = {
     otherUser: null,
     setOtherUser: () => { },
     otherUserId: null,
-    setOtherUserId: () => { }
+    setOtherUserId: () => { },
+    websocketConnection: null,
+    setWebsocketConnection: () => { }
 }
 
 export const GameContext = createContext<GameContextType>(defaultContext)

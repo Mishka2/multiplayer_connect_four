@@ -13,10 +13,8 @@ function ConnectToGame() {
     }
 
     async function connect() {
-        console.log(userId)
         const response = await postData(`/connectToGame?game_name=${input}&user_id=${userId}`)
 
-        console.log("REEE", response)
         if (response.otherUser) {
             setGameCode(input)
             let otherUser: User = {
